@@ -1,0 +1,71 @@
+# https://dev.azure.com/home-assistant
+
+trigger:
+  tags:
+    include:
+    - '*'
+    exclude:
+    - untagged*
+pr: none
+variables:
+  - name: versionWheels
+    value: '0.10'
+  - group: wheels
+
+jobs:
+
+- job: 'Wheels'
+  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags')
+  timeoutInMinutes: 360
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    maxParallel: 3
+    matrix:
+      amd64:
+        buildArch: 'amd64'
+      i386:
+        buildArch: 'i386'
+      armhf:
+        buildArch: 'armhf'
+      armv7:
+        buildArch: 'armv7'
+      aarch64:
+        buildArch: 'aarch64'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install -y --no-install-recommends \
+        qemu-user-static \
+        binfmt-support \
+        curl
+      
+      sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+      sudo update-binfmts --enable qemu-arm
+      sudo update-binfmts --enable qemu-aarch64
+    displayName: 'Initial cross build'
+  - script: |
+      mkdir -p .ssh
+      echo -e "-----BEGIN RSA PRIVATE KEY-----\n$(wheelsSSH)\n-----END RSA PRIVATE KEY-----" >> .ssh/id_rsa
+      ssh-keyscan -H $(wheelsHost) >> .ssh/known_hosts
+      chmod 600 .ssh/*
+    displayName: 'Install ssh key'
+  - script: sudo docker pull homeassistant/$(buildArch)-wheels:$(versionWheels)
+    displayName: 'Install wheels builder'
+  - script: |
+      version="$(head -n 1 requirements.txt)"
+      git clone --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
+
+      if [ "$(buildArch)" ~= arm ]; then
+        patch -d opencv-python < 0001-Fix-ARM-builds.patch
+      fi
+    displayName: 'Setup opencv-python'
+  - script: |
+      sudo docker run --rm -v $(pwd)/opencv-python:/data:ro -v $(pwd)/.ssh:/root/.ssh:rw \
+        homeassistant/$(buildArch)-wheels:$(versionWheels) \
+        --apk "build-base,cmake,ncurses,linux-headers,ffmpeg-dev,libwebp-dev,libpng-dev,zlib-dev,libjpeg-turbo-dev,tiff-dev,jasper-dev,libdc1394-dev" \
+        --index $(wheelsIndex) \
+        --local \
+        --upload rsync \
+        --remote wheels@$(wheelsHost):/opt/wheels
+    displayName: 'Run wheels build'
