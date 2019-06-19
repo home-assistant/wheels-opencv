@@ -56,7 +56,7 @@ jobs:
       version="$(head -n 1 requirements.txt)"
       git clone --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
 
-      if [[ "$(buildArch)" ~= arm ]]; then
+      if [[ "$(buildArch)" =~ arm ]]; then
         patch -d opencv-python < 0001-Fix-ARM-builds.patch
       fi
     displayName: 'Setup opencv-python'
