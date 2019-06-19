@@ -61,6 +61,8 @@ jobs:
       fi
     displayName: 'Setup opencv-python'
   - script: |
+      export ENABLE_HEADLESS=1
+
       sudo docker run --rm -v $(pwd)/opencv-python:/data:ro -v $(pwd)/.ssh:/root/.ssh:rw \
         homeassistant/$(buildArch)-wheels:$(versionWheels) \
         --apk "build-base;git;cmake;ncurses;linux-headers;ffmpeg-dev;libwebp-dev;libpng-dev;zlib-dev;libjpeg-turbo-dev;tiff-dev;jasper-dev;libdc1394-dev" \
