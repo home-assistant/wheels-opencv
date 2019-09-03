@@ -33,4 +33,10 @@ jobs:
         if [[ "$(buildArch)" =~ arm ]]; then
           echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
         fi
+
+        # Fix not working patch with pip
+        if [[ "$(buildArch)" =~ (arm|i386) ]]; then
+          patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
+          sed -i "/patches\/patchOpenEXR/d" opencv-python/setup.py
+        fi
       displayName: 'Setup opencv-python'
