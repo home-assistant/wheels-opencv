@@ -19,17 +19,18 @@ jobs:
 - template: templates/azp-job-wheels.yaml@azure
   parameters:
     builderVersion: '$(versionWheels)'
-    builderApk: 'build-base;cmake;git;linux-headers;bluez-dev;libffi-dev;openssl-dev;glib-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;autoconf;automake;cups-dev;linux-headers;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev'
+    builderApk: 'build-base;cmake;patch;git;linux-headers;bluez-dev;libffi-dev;openssl-dev;glib-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;autoconf;automake;cups-dev;linux-headers;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev'
     builderPip: 'Cython;numpy'
     builderPath: 'opencv-python'
-    builderEnv: 'ENABLE_HEADLESS=1'
+    builderEnvFile: true
     wheelsLocal: true
     preBuild:
     - script: |
         version="$(head -n 1 requirements.txt)"
         git clone --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
 
+        echo "ENABLE_HEADLESS=1" > opencv-python/.env_file
         if [[ "$(buildArch)" =~ arm ]]; then
-          patch -d opencv-python < 0001-Fix-ARM-builds.patch
+          echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> opencv-python/.env_file
         fi
       displayName: 'Setup opencv-python'
