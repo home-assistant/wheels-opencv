@@ -29,8 +29,8 @@ jobs:
         version="$(head -n 1 requirements.txt)"
         git clone --depth 1 --shallow-submodules --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
 
-        echo "ENABLE_HEADLESS=1" > opencv-python/.env_file
+        echo "ENABLE_HEADLESS=1" > .env_file
         if [[ "$(buildArch)" =~ arm ]]; then
-          echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> opencv-python/.env_file
+          echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
         fi
       displayName: 'Setup opencv-python'
