@@ -27,7 +27,7 @@ jobs:
     preBuild:
     - script: |
         version="$(head -n 1 requirements.txt)"
-        git clone --depth 1 --shallow-submodules --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
+        git clone --depth 1 --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
 
         echo "ENABLE_HEADLESS=1" > .env_file
         if [[ "$(buildArch)" =~ arm ]]; then
