@@ -27,7 +27,7 @@ jobs:
     preBuild:
     - script: |
         version="$(head -n 1 requirements.txt)"
-        git clone --depth 1 --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
+        git clone --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
 
         echo "ENABLE_HEADLESS=1" > .env_file
         if [[ "$(buildArch)" =~ arm ]]; then
@@ -39,7 +39,4 @@ jobs:
           patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
           sed -i "/patches\/patchOpenEXR/d" opencv-python/setup.py
         fi
-
-        # Remote .git prevent new sync
-        rm -rf opencv-python/.git
       displayName: 'Setup opencv-python'
