@@ -41,6 +41,6 @@ jobs:
         fi
         
         # Fix git
-        sed -i "s/package_version = get_opencv_version()/package_version = \"${version}\"/" opencv-python/setup.py
+        sed -i "s/package_version = get_opencv_version()/package_version = \"${version##*=}\"/" opencv-python/setup.py
         rm -rf opencv-python/.git
       displayName: 'Setup opencv-python'
