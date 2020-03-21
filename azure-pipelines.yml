@@ -39,4 +39,8 @@ jobs:
           patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
           sed -i "/patches\/patchOpenEXR/d" opencv-python/setup.py
         fi
+        
+        # Fix git
+        sed -i "s/package_version = get_opencv_version()/package_version = \"${version}\"/" opencv-python/setup.py
+        rm -rf opencv-python/.git
       displayName: 'Setup opencv-python'
