@@ -34,6 +34,12 @@ jobs:
           echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
         fi
 
+        # Fix not working patch with pip
+        if [[ "$(buildArch)" =~ (arm|i386) ]]; then
+          patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
+          vim -e -c 'g/patches\/patchOpenEXR/.-1,.d' -c 'wq' opencv-python/setup.py
+        fi
+
         # Fix git
         sed -i "s/package_version = get_opencv_version()/package_version = \"${version##*=}\"/" opencv-python/setup.py
         rm -rf opencv-python/.git
