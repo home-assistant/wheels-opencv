@@ -26,7 +26,7 @@ jobs:
     wheelsLocal: true
     preBuild:
     - script: |
-        set -e
+        set -xe
 
         version="$(head -n 1 requirements.txt)"
         git clone --depth 1 --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
