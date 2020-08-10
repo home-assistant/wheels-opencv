@@ -44,7 +44,7 @@ jobs:
 
         # Fix git
         vim -e -c \
-          "s/package_version, build_contrib, build_headless = get_and_set_info(\_.\{-})/package_version, build_contrib, build_headless = (\"${version##*=}\", False, True)/" \
+          "%s/package_version, build_contrib, build_headless = get_and_set_info(\_.\{-})/package_version, build_contrib, build_headless = (\"${version##*=}\", False, True)/" \
           -c 'wq' opencv-python/setup.py
         rm -rf opencv-python/.git
       displayName: 'Setup opencv-python'
