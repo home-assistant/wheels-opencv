@@ -20,7 +20,7 @@ jobs:
   parameters:
     builderVersion: '$(versionWheels)'
     builderApk: 'build-base;musl-dev;cmake;git;linux-headers;libffi-dev;openssl-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;autoconf;automake;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;libwebp-dev'
-    builderPip: 'Cython;numpy;skbuild'
+    builderPip: 'Cython;numpy;scikit-build'
     builderPath: 'opencv-python'
     builderEnvFile: true
     wheelsLocal: true
