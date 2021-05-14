@@ -10,7 +10,6 @@ on:
       - master
     paths:
       - "requirements.txt"
-      - ".github/workflows/wheels.yml" # For testing only, remove before merge
 
 jobs:
   build:
