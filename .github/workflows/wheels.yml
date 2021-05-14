@@ -21,8 +21,12 @@ jobs:
       matrix:
         arch:
           - amd64
+          - i386
+          - armhf
+          - armv7
+          - aarch64
         tag:
-          #- "3.8-alpine3.12"
+          - "3.8-alpine3.12"
           - "3.9-alpine3.13"
     steps:
       - name: Checkout the repository
@@ -32,7 +36,7 @@ jobs:
         id: testing
         run: |
           testing="true"
-          if [[ "${{ github.event_name }}" == "release" ]]; then
+          if [[ "${{ github.event_name  }}" =~ release|workflow_dispatch ]]; then
             testing="false"
           fi
           echo "::set-output name=testing::${testing}"
