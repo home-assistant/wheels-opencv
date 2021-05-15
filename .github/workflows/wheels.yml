@@ -1,0 +1,79 @@
+name: Build wheels
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "requirements.txt"
+
+jobs:
+  build:
+    name: Build wheels with ${{ matrix.tag }} (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+          - i386
+          - armhf
+          - armv7
+          - aarch64
+        tag:
+          - "3.8-alpine3.12"
+          - "3.9-alpine3.13"
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Enable testing
+        id: testing
+        run: |
+          testing="true"
+          if [[ "${{ github.event_name  }}" =~ release|workflow_dispatch ]]; then
+            testing="false"
+          fi
+          echo "::set-output name=testing::${testing}"
+
+      - name: Prepare opencv-python
+        run: |
+          set -xe
+
+          version="$(head -n 1 requirements.txt)"
+          git clone --depth 1 --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
+
+          echo "ENABLE_HEADLESS=1" > .env_file
+          if [[ "${{ matrix.arch }}" =~ arm ]]; then
+            echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
+          fi
+
+          # Fix not working patch with pip
+          if [[ "${{ matrix.arch }}" =~ (arm|i386) ]]; then
+            patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
+            vim -e -c 'g/patches\/patchOpenEXR/.-1,.d' -c 'wq' opencv-python/setup.py
+          fi
+
+          # Fix git
+          vim -e -c \
+            "%s/package_version, build_contrib, build_headless = get_and_set_info(\_.\{-})/package_version, build_contrib, build_headless = (\"${version##*=}\", False, True)/" \
+            -c 'wq' opencv-python/setup.py
+          rm -rf opencv-python/.git
+
+      - name: Build wheels
+        uses: home-assistant/wheels@master
+        with:
+          tag: ${{ matrix.tag }}
+          arch: ${{ matrix.arch }}
+          wheels-key: ${{ secrets.WHEELS_KEY }}
+          apk: "build-base;musl-dev;cmake;git;linux-headers;libffi-dev;openssl-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;autoconf;automake;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;libwebp-dev"
+          pip: "Cython;numpy;scikit-build"
+          path: "opencv-python"
+          test: ${{ steps.testing.outputs.testing }}
+          env-file: true
+          local: true
+
