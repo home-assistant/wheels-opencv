@@ -50,7 +50,7 @@ jobs:
           fi
           if [ "${{ matrix.arch }}" = "i386" ]; then
             echo "NPY_DISABLE_SVML=1" >> .env_file
-          if
+          fi
 
           # Fix not working patch with pip
           if [[ "${{ matrix.arch }}" =~ (arm|i386) ]]; then
