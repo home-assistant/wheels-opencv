@@ -71,7 +71,7 @@ jobs:
           tag: musllinux_1_2
           arch: ${{ matrix.arch }}
           wheels-key: ${{ secrets.WHEELS_KEY }}
-          apk: "libffi-dev;openssl-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;libwebp-dev"
+          apk: "libffi-dev;openssl-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;libwebp-dev;openblas-dev;fftw-dev;lapack-dev;gfortran"
           path: "opencv-python"
           test: ${{ steps.testing.outputs.testing }}
           env-file: true
