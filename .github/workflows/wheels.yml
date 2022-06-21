@@ -72,6 +72,7 @@ jobs:
           arch: ${{ matrix.arch }}
           wheels-key: ${{ secrets.WHEELS_KEY }}
           apk: "blas-dev;eigen-dev;ffmpeg-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;lapack-dev;libdc1394-dev;libgphoto2-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;openjpeg-tools;openssl-dev"
+          pip: "ninja==1.10.2.3"
           requirements: "requirements.txt"
           env-file: true
 
