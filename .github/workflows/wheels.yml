@@ -50,7 +50,7 @@ jobs:
             echo "NPY_DISABLE_SVML=1" >> .env_file
           fi
 
-          echo 'CMAKE_ARGS="-DENABLE_LTO=ON -DBUILD_EXAMPLES=OFF"' >> .env_file
+          #echo 'CMAKE_ARGS=-DENABLE_LTO=ON -DBUILD_EXAMPLES=OFF"' >> .env_file
 
           # Fix not working patch with pip
           #if [[ "${{ matrix.arch }}" =~ (arm|i386) ]]; then
