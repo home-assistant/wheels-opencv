@@ -74,5 +74,5 @@ jobs:
           apk: "blas-dev;eigen-dev;ffmpeg-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;lapack-dev;libdc1394-dev;libgphoto2-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;openjpeg-tools;openssl-dev"
           requirements: "requirements.txt"
           test: ${{ steps.testing.outputs.testing }}
-          env-file: true
+          env-file: false
 
