@@ -71,8 +71,7 @@ jobs:
           tag: musllinux_1_2
           arch: ${{ matrix.arch }}
           wheels-key: ${{ secrets.WHEELS_KEY }}
-          apk: "blas-dev;eigen-dev;ffmpeg-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;lapack-dev;libdc1394-dev;libgphoto2-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;openjpeg-tools;openssl-dev;bzip2-dev;curl-dev;expat-dev;libarchive-dev;libuv-dev;ncurses-dev;rhash-dev;xz-dev;zlib-dev"
-          pip: "ninja==1.10.2.3"
+          apk: "blas-dev;eigen-dev;ffmpeg-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;lapack-dev;libdc1394-dev;libgphoto2-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;openjpeg-tools;openssl-dev"
           requirements: "requirements.txt"
           env-file: true
 
