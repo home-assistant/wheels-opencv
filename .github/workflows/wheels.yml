@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    name: Build wheels with ${{ matrix.tag }} (${{ matrix.arch }})
+    name: Build wheels for musllinux_1_2 cp310 (${{ matrix.arch }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -24,9 +24,6 @@ jobs:
           - armhf
           - armv7
           - aarch64
-        tag:
-          - "3.9-alpine3.13"
-          - "3.9-alpine3.14"
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2.3.4
@@ -40,40 +37,41 @@ jobs:
           fi
           echo "::set-output name=testing::${testing}"
 
-      - name: Prepare opencv-python
+      - name: ENV opencv-python
         run: |
           set -xe
 
-          version="$(head -n 1 requirements.txt)"
-          git clone --depth 1 --recurse-submodules -b "${version##*.}" https://github.com/skvark/opencv-python
-
           echo "ENABLE_HEADLESS=1" > .env_file
-          if [[ "${{ matrix.arch }}" =~ arm ]]; then
-            echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
+          echo "CI_BUILD=1" >> .env_file
+          #if [[ "${{ matrix.arch }}" =~ arm ]]; then
+          #  echo 'CMAKE_ARGS="-DENABLE_NEON=OFF -DCPU_BASELINE_REQUIRE="' >> .env_file
+          #fi
+          if [ "${{ matrix.arch }}" = "i386" ]; then
+            echo "NPY_DISABLE_SVML=1" >> .env_file
           fi
+
+          #echo 'CMAKE_ARGS=-DENABLE_LTO=ON -DBUILD_EXAMPLES=OFF"' >> .env_file
 
           # Fix not working patch with pip
-          if [[ "${{ matrix.arch }}" =~ (arm|i386) ]]; then
-            patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
-            vim -e -c 'g/patches\/patchOpenEXR/.-1,.d' -c 'wq' opencv-python/setup.py
-          fi
+          #if [[ "${{ matrix.arch }}" =~ (arm|i386) ]]; then
+          #  patch -d opencv-python -p0 < opencv-python/patches/patchOpenEXR
+          #  vim -e -c 'g/patches\/patchOpenEXR/.-1,.d' -c 'wq' opencv-python/setup.py
+          #fi
 
           # Fix git
-          vim -e -c \
-            "%s/package_version, build_contrib, build_headless = get_and_set_info(\_.\{-})/package_version, build_contrib, build_headless = (\"${version##*=}\", False, True)/" \
-            -c 'wq' opencv-python/setup.py
-          rm -rf opencv-python/.git
+          #vim -e -c \
+          #  "%s/package_version, build_contrib, build_headless = get_and_set_info(\_.\{-})/package_version, build_contrib, build_headless = (\"${version##*=}\", False, True)/" \
+          #  -c 'wq' opencv-python/setup.py
+          #rm -rf opencv-python/.git
 
       - name: Build wheels
-        uses: home-assistant/wheels@master
+        uses: home-assistant/wheels@2022.06.6
         with:
-          tag: ${{ matrix.tag }}
+          abi: cp310
+          tag: musllinux_1_2
           arch: ${{ matrix.arch }}
           wheels-key: ${{ secrets.WHEELS_KEY }}
-          apk: "build-base;musl-dev;cmake;git;linux-headers;libffi-dev;openssl-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;autoconf;automake;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;libwebp-dev"
-          pip: "Cython;numpy;scikit-build"
-          path: "opencv-python"
-          test: ${{ steps.testing.outputs.testing }}
+          apk: "blas-dev;eigen-dev;ffmpeg-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;lapack-dev;libdc1394-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;openjpeg-tools;openssl-dev"
+          requirements: "requirements.txt"
           env-file: true
-          local: true
 
